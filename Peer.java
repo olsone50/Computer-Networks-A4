@@ -44,8 +44,18 @@ class Peer
     Peer(String name2, String ip, int lPort, String filesPath, 
          String nIP, int nPort)
     {
-        /* to be completed */
-
+    	name = name2;
+        this.ip = ip;
+        this.lPort = lPort;
+        this.filesPath = filesPath;
+        seqNumber = 1;
+        neighbors = new ArrayList<Neighbor>();
+        if (nIP != null) {
+        	neighbors.add(new Neighbor(nIP, nPort));
+        }
+        lThread.run();
+        ftThread.run();
+        
     }// constructor
 
     /* display the commands available to the user
