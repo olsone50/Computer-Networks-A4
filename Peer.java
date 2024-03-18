@@ -2,11 +2,9 @@
  *
  *  @version CS 391 - Spring 2024 - A4
  *
- *  @author FIRST STUDENT'S FULL NAME GOES HERE
+ *  @author Ethan Lenz
  *
- *  @author 2nd STUDENT'S FULL NAME GOES HERE
- *
- *  @author 3rd STUDENT'S FULL NAME GOES HERE (DELETE THIS LINE IF NOT NEEDED)
+ *  @author Evan Olson
  * 
  *  @bug The initial join of a new peer [does/does not] work fully. [pick one]
  *
