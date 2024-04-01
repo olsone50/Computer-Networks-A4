@@ -53,8 +53,10 @@ class Peer
         if (nIP != null) {
         	neighbors.add(new Neighbor(nIP, nPort));
         }
+        scanner = new Scanner(System.in);
         lThread.run();
         ftThread.run();
+        GUI gUI = new GUI();
         
     }// constructor
 
@@ -75,8 +77,19 @@ class Peer
      */
     int getChoice()
     {
-        /* to be completed */
-
+        String choice = scanner.next();
+        if (choice.equalsIgnoreCase("s") || choice.equals("1")) {
+        	return 1;
+        }
+        else if (choice.equalsIgnoreCase("f") || choice.equals("2")) {
+        	return 2;
+        }
+        else if (choice.equalsIgnoreCase("g") || choice.equals("3")) {
+        	return 3;
+        }
+        else if (choice.equalsIgnoreCase("q") || choice.equals("4")) {
+        	return 4;
+        }
         return -1;
     }// getChoice method
         
@@ -87,7 +100,29 @@ class Peer
      */
     void run()
     {
-        /* to be completed */
+        while (true) {
+        	displayMenu();
+        	int choice = getChoice();
+        	System.out.println("\n\n==================");
+        	
+        	if (choice == 1) {
+        		processStatusRequest();
+        	} 
+        	else if (choice == 2) {
+        		processFindRequest();
+        	}
+        	else if (choice == 3) {
+        		processGetRequest();
+        	}
+        	else if (choice == 4) {
+        		processQuitRequest();
+        		break;
+        	}
+        	else {
+        		System.out.println("Invalid choice.");
+        		System.out.println("==================\n");
+        	}
+        }
 
     }// run method
 
@@ -161,7 +196,10 @@ class Peer
      */
     void printNeighbors()
     {   
-        /* to be completed */
+        System.out.print("Neighbors: ");
+        for (Neighbor n : neighbors) {
+        	System.out.println("\t" + n.toString());
+        }
 
     }// printNeighbors method
 
