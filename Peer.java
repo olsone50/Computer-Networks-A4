@@ -54,9 +54,11 @@ class Peer
         	neighbors.add(new Neighbor(nIP, nPort));
         }
         scanner = new Scanner(System.in);
-        lThread.run();
-        ftThread.run();
+        //lThread.run();
+        //ftThread.run();
         GUI gUI = new GUI();
+        gUI.createAndShowGUI(name);
+        run();
         
     }// constructor
 
@@ -103,7 +105,7 @@ class Peer
         while (true) {
         	displayMenu();
         	int choice = getChoice();
-        	System.out.println("\n\n==================");
+        	System.out.println("\n==================");
         	
         	if (choice == 1) {
         		processStatusRequest();
@@ -120,7 +122,7 @@ class Peer
         	}
         	else {
         		System.out.println("Invalid choice.");
-        		System.out.println("==================\n");
+        		System.out.println("==================");
         	}
         }
 
@@ -144,8 +146,20 @@ class Peer
      */
     void processStatusRequest()
     {
-        /* to be completed */
+    	File folder = new File(filesPath);
+    	File[] listOfFiles = folder.listFiles();
 
+    	System.out.print("Local files:");
+    	for (File file : listOfFiles) {
+    	    if (file.isFile()) {
+    	        System.out.print("\n    " + file.getName());
+    	    }
+    	}
+    	
+    	System.out.println();
+    	printNeighbors();
+    	System.out.println("==================");
+    	
     }// processStatusRequest method
 
     /* execute the Find command, that is, prompt the user for the file
@@ -198,8 +212,9 @@ class Peer
     {   
         System.out.print("Neighbors: ");
         for (Neighbor n : neighbors) {
-        	System.out.println("\t" + n.toString());
+        	System.out.print("\n    " + n.toString());
         }
+        System.out.println();
 
     }// printNeighbors method
 
