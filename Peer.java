@@ -200,7 +200,22 @@ class Peer
      */
     void writeFile(String fileName, String contents)
     {
-        /* to be completed */
+    	PrintWriter out = null;
+        try {
+        	File file = new File(fileName, filesPath);
+        	if (file.createNewFile()) {
+        		out = new PrintWriter(file);
+            	out.write(contents);
+        	}
+        }
+        catch (IOException e) {
+        	System.out.println(e);
+        }
+        finally {
+        	if (out != null) {
+        		out.close();
+        	}
+        }
 
     }// writeFile method
 
