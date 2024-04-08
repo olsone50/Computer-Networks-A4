@@ -60,7 +60,7 @@ class Peer
             ftThread = new FileTransferThread();
             ftThread.start();
             if (nIP != null) {
-            	
+            	neighbors.add(new Neighbor(nIP, nPort));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -344,11 +344,14 @@ class Peer
         public void run() {
             try {
                 socket = new DatagramSocket(lPort);
+                if (neighbors.size() == 1) {               	
+                	process("join " + neighbors.get(0).ip + " " + neighbors.get(0).port);
+                }
                 while (!stop) {
                     byte[] buf = new byte[256];
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
                     socket.receive(packet);
-    
+                    GUI.displayLU(new String(packet.getData()));
                     String request = new String(packet.getData(), 0, packet.getLength());
                     process(request);
                 }
