@@ -2,11 +2,9 @@
  *
  *  @version CS 391 - Spring 2024 - A4
  *
- *  @author FIRST STUDENT'S FULL NAME GOES HERE
+ *  @author Ethan Lenz
  *
- *  @author 2nd STUDENT'S FULL NAME GOES HERE
- *
- *  @author 3rd STUDENT'S FULL NAME GOES HERE (DELETE THIS LINE IF NOT NEEDED)
+ *  @author Evan Olson
  * 
  *  @bug The initial join of a new peer [does/does not] work fully. [pick one]
  *
@@ -50,15 +48,20 @@ class Peer
         this.ip = ip;
         this.lPort = lPort;
         this.filesPath = filesPath;
-        this.seqNumber = 1;
-        this.neighbors = new ArrayList<>();
-        this.findRequests = new HashSet<>();
+        seqNumber = 1;
+        neighbors = new ArrayList<>();
+        findRequests = new HashSet<>();
+        GUI gUI = new GUI();
+        gUI.createAndShowGUI(name);
         try {
-            this.scanner = new Scanner(System.in);
-            this.lThread = new LookupThread();
-            this.lThread.start();
-            this.ftThread = new FileTransferThread();
-            this.ftThread.start();
+            scanner = new Scanner(System.in);
+            lThread = new LookupThread();
+            lThread.start();
+            ftThread = new FileTransferThread();
+            ftThread.start();
+            if (nIP != null) {
+            	
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,31 +84,20 @@ class Peer
      */
     int getChoice()
     {
-        int choice = -1;
-        try {
-            System.out.print("Your choice: ");
-            String input = scanner.nextLine().trim().toLowerCase();
-            switch (input) {
-                case "s":
-                    choice = 1;
-                    break;
-                case "f":
-                    choice = 2;
-                    break;
-                case "g":
-                    choice = 3;
-                    break;
-                case "q":
-                    choice = 4;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please enter a valid option.");
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    	String choice = scanner.next();
+        if (choice.equalsIgnoreCase("s") || choice.equals("1")) {
+        	return 1;
         }
-        return choice;
+        else if (choice.equalsIgnoreCase("f") || choice.equals("2")) {
+        	return 2;
+        }
+        else if (choice.equalsIgnoreCase("g") || choice.equals("3")) {
+        	return 3;
+        }
+        else if (choice.equalsIgnoreCase("q") || choice.equals("4")) {
+        	return 4;
+        }
+        return -1;
     }// getChoice method
         
     /* this is the implementation of the peer's main thread, which
@@ -115,25 +107,27 @@ class Peer
      */
     void run() {
         while (true) {
-            displayMenu();
-            int choice = getChoice();
-            switch (choice) {
-                case 1:
-                    processStatusRequest();
-                    break;
-                case 2:
-                    processFindRequest();
-                    break;
-                case 3:
-                    processGetRequest();
-                    break;
-                case 4:
-                    processQuitRequest();
-                    return; // Exit the loop and terminate the program
-                default:
-                    System.out.println("Invalid choice. Please enter a valid option.");
-                    break;
-            }
+        	displayMenu();
+        	int choice = getChoice();
+        	System.out.println("\n==================");
+        	
+        	if (choice == 1) {
+        		processStatusRequest();
+        	} 
+        	else if (choice == 2) {
+        		processFindRequest();
+        	}
+        	else if (choice == 3) {
+        		processGetRequest();
+        	}
+        	else if (choice == 4) {
+        		processQuitRequest();
+        		break;
+        	}
+        	else {
+        		System.out.println("Invalid choice.");
+        		System.out.println("==================");
+        	}
         }
     }// run method
 
@@ -141,7 +135,6 @@ class Peer
        peer's neighbors, then terminate the lookup thread
      */
     void processQuitRequest() {
-        // Send a "leave" message to all neighbor peers
         for (Neighbor neighbor : neighbors) {
             try (DatagramSocket socket = new DatagramSocket()) {
                 String leaveMessage = "leave";
@@ -153,7 +146,6 @@ class Peer
                 e.printStackTrace();
             }
         }
-        // Terminate the lookup thread
         lThread.terminate();
     }// processQuitRequest method
 
@@ -165,19 +157,25 @@ class Peer
        handout.
      */
     void processStatusRequest() {
-        // Read and display the list of files currently stored in the local directory
-        File directory = new File(filesPath);
-        File[] files = directory.listFiles();
-        System.out.println("Files in local directory:");
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    System.out.println("- " + file.getName());
-                }
-            }
-        }
-        // Print the list of neighbors
-        printNeighbors();
+    	File directory = new File(filesPath);
+    	File[] files = directory.listFiles();
+
+    	if (files != null)
+    	{
+    		System.out.print("Local files:");
+        	for (File file : files) {
+        	    if (file.isFile()) {
+        	        System.out.print("\n    " + file.getName());
+        	    }
+        	}
+    	}
+    	else {
+    		System.out.print("Error finding files");
+    	}
+    	
+    	System.out.println();
+    	printNeighbors();
+    	System.out.println("==================");
     }// processStatusRequest method
 
     /* execute the Find command, that is, prompt the user for the file
@@ -191,10 +189,9 @@ class Peer
      */
     void processFindRequest() {
         scanner = new Scanner(System.in);
-        System.out.print("Enter the file name to search for: ");
+        System.out.print("Name of file to find: ");
         String fileName = scanner.nextLine().trim();
     
-        // Check if the file exists locally
         File directory = new File(filesPath);
         File[] files = directory.listFiles();
         boolean foundLocally = false;
@@ -206,15 +203,12 @@ class Peer
                 }
             }
         }
-    
-        // If the file is found locally, inform the user
         if (foundLocally) {
-            System.out.println("File '" + fileName + "' found locally.");
+            System.out.println("This file exists locally in " + filesPath);
         } else {
-            // Otherwise, send a lookup message to all neighbors
             seqNumber++;
             String findRequest = "lookup " + seqNumber + " " + fileName;
-            findRequests.add(seqNumber + fileName); // Record the request ID
+            findRequests.add(seqNumber + fileName);
             for (Neighbor neighbor : neighbors) {
                 try (DatagramSocket socket = new DatagramSocket()) {
                     byte[] buf = findRequest.getBytes();
@@ -225,8 +219,8 @@ class Peer
                     e.printStackTrace();
                 }
             }
-            System.out.println("Searching for file '" + fileName + "'...");
         }
+        System.out.println("==================");
     }// processFindRequest method
 
     /* execute the Get command, that is, prompt the user for the file
@@ -245,15 +239,13 @@ class Peer
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.print("Enter the file name: ");
             String fileName = scanner.nextLine().trim();
-            System.out.print("Enter the peer's IP address: ");
+            System.out.print("Address of source peer: ");
             String peerIP = scanner.nextLine().trim();
-            System.out.print("Enter the peer's port number: ");
+            System.out.print("Port of source peer: ");
             int peerPort = Integer.parseInt(scanner.nextLine().trim());
     
-            // Create a new socket to send the "get" message
             try (Socket socket = new Socket(peerIP, peerPort);
                  DataOutputStream out = new DataOutputStream(socket.getOutputStream())) {
-                // Send the "get" message to the specified peer
                 String getRequest = "get " + fileName;
                 out.writeUTF(getRequest);
             } catch (IOException e) {
@@ -268,13 +260,21 @@ class Peer
        name and contents are given as arguments.
      */
     void writeFile(String fileName, String contents) {
+    	PrintWriter out = null;
         try {
-            FileWriter fileWriter = new FileWriter(filesPath + File.separator + fileName);
-            fileWriter.write(contents);
-            fileWriter.close();
-            System.out.println("File '" + fileName + "' saved to local directory.");
-        } catch (IOException e) {
-            System.out.println("Error occurred while writing the file: " + e.getMessage());
+        	File file = new File(fileName, filesPath);
+        	if (file.createNewFile()) {
+        		out = new PrintWriter(file);
+            	out.write(contents);
+        	}
+        }
+        catch (IOException e) {
+        	System.out.println(e);
+        }
+        finally {
+        	if (out != null) {
+        		out.close();
+        	}
         }
     }// writeFile method
 
@@ -283,10 +283,11 @@ class Peer
        example in the assignment handout.
      */
     void printNeighbors() {
-        System.out.println("Neighbors:");
-        for (Neighbor neighbor : neighbors) {
-            System.out.println("- " + neighbor.ip + ":" + neighbor.port);
+    	System.out.print("Neighbors: ");
+        for (Neighbor n : neighbors) {
+        	System.out.print("\n    " + n.toString());
         }
+        System.out.println();
     }// printNeighbors method
 
     /* Do NOT modify this inner class
@@ -348,7 +349,6 @@ class Peer
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
                     socket.receive(packet);
     
-                    // Extract the request from the received packet
                     String request = new String(packet.getData(), 0, packet.getLength());
                     process(request);
                 }
@@ -412,7 +412,6 @@ class Peer
             String fileName = line.nextToken();
             String sourceIP = null;
             int sourcePort = 0;
-            // Extract source IP and port from the request line
             if (line.hasMoreTokens()) {
                 sourceIP = line.nextToken();
                 if (line.hasMoreTokens()) {
@@ -421,7 +420,6 @@ class Peer
             }
         
             if (!findRequests.contains(requestID + fileName)) {
-                // Check if the file exists locally
                 File directory = new File(filesPath);
                 File[] files = directory.listFiles();
                 boolean foundLocally = false;
@@ -434,7 +432,6 @@ class Peer
                     }
                 }
                 if (foundLocally) {
-                    // Send file message to source peer
                     String fileMessage = "file " + requestID + " " + name + " " + ip + " " + ftPort + " " + fileName;
                     for (Neighbor neighbor : neighbors) {
                         try (DatagramSocket socket = new DatagramSocket()) {
@@ -447,7 +444,6 @@ class Peer
                         }
                     }
                 } else {
-                    // Send lookup message to all neighbors except source peer
                     String lookupMessage = "lookup " + requestID + " " + fileName;
                     for (Neighbor neighbor : neighbors) {
                         if (!neighbor.ip.equals(sourceIP) || neighbor.port != sourcePort) {
@@ -491,13 +487,8 @@ class Peer
                     in = new DataInputStream(clientSocket.getInputStream());
                     out = new DataOutputStream(clientSocket.getOutputStream());
     
-                    // Read the request from the client
                     request = in.readUTF();
-    
-                    // Process the request
                     process(request);
-    
-                    // Close the connection
                     clientSocket.close();
                 }
             } catch (IOException e) {
@@ -528,7 +519,6 @@ class Peer
                 String fileName = tokenizer.nextToken();
                 File file = new File(filesPath + File.separator + fileName);
                 if (file.exists()) {
-                    // Send file contents to client
                     byte[] fileContents = readFile(file);
                     try {
                         openStreams();
@@ -541,7 +531,6 @@ class Peer
                         close();
                     }
                 } else {
-                    // Send file not found message to client
                     try {
                         openStreams();
                         out.writeUTF("fileNotFound");
