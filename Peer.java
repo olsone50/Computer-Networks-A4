@@ -373,10 +373,18 @@ class Peer
             String keyword = tokenizer.nextToken();
             switch (keyword) {
                 case "join":
-                    // Implement join message processing here
+                    neighbors.add(new Neighbor(tokenizer.nextToken()
+                    		, Integer.parseInt(tokenizer.nextToken())));
                     break;
                 case "leave":
-                    // Implement leave message processing here
+                	Neighbor n = new Neighbor(tokenizer.nextToken()
+                    		, Integer.parseInt(tokenizer.nextToken()));
+                    for (int i = 0; i < neighbors.size(); i++) {
+                    	Neighbor x = neighbors.get(i);
+                    	if (n.ip.compareTo(x.ip) == 0 && n.port == x.port) {
+                    		neighbors.remove(i);
+                    	}
+                    }
                     break;
                 case "lookup":
                     processLookup(tokenizer);
