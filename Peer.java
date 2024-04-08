@@ -126,8 +126,8 @@ class Peer
         	}
         	else {
         		System.out.println("Invalid choice.");
-        		System.out.println("==================");
         	}
+        	System.out.println("==================");
         }
     }// run method
 
@@ -175,7 +175,6 @@ class Peer
     	
     	System.out.println();
     	printNeighbors();
-    	System.out.println("==================");
     }// processStatusRequest method
 
     /* execute the Find command, that is, prompt the user for the file
@@ -220,7 +219,6 @@ class Peer
                 }
             }
         }
-        System.out.println("==================");
     }// processFindRequest method
 
     /* execute the Get command, that is, prompt the user for the file
@@ -351,7 +349,6 @@ class Peer
                     byte[] buf = new byte[256];
                     DatagramPacket packet = new DatagramPacket(buf, buf.length);
                     socket.receive(packet);
-                    GUI.displayLU(new String(packet.getData()));
                     String request = new String(packet.getData(), 0, packet.getLength());
                     process(request);
                 }
